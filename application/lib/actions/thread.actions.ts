@@ -49,6 +49,12 @@ export async function fetchPosts(pageNumber = 1, pageSize = 20) {
 }
 
 interface Params {
+  position: {
+    coords: {
+      latitude: number;
+      longitude: number;
+    };
+  };
   photo: string;
   text: string;
   author: string;
@@ -57,6 +63,7 @@ interface Params {
 }
 
 export async function createThread({
+  position,
   photo,
   text,
   author,
@@ -71,7 +78,16 @@ export async function createThread({
       { _id: 1 }
     );
 
+    console.log({
+      position,
+      photo,
+      text,
+      author,
+      community: communityIdObject, // Assign communityId if provided, or leave it null for personal account
+    });
+
     const createdThread = await Thread.create({
+      position,
       photo,
       text,
       author,

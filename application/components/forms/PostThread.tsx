@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/no-custom-classname */
 "use client";
 
 import * as z from "zod";
@@ -25,6 +26,10 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { isBase64Image } from "@/lib/utils";
 import { useUploadThing } from "@/lib/uploadthing";
+import Getlocation from "../test/getlocation";
+import { text } from "micro";
+import path from "path";
+// import { myLocation } from "@/lib/geotagging";
 
 interface Props {
   userId: string;
@@ -37,8 +42,18 @@ interface Props {
 //   };
 // }
 
+// interface GeolocationPosition {
+//   coords: {
+//     latitude: number;
+//     longitude: number;
+//   };
+// }
+
 function PostThread({ userId }: Props) {
   const router = useRouter();
+
+  const [cords, setCords] = useState({ latitude: 0, longitude: 0 });
+
   const pathname = usePathname();
   const { startUpload } = useUploadThing("media");
 
@@ -67,7 +82,13 @@ function PostThread({ userId }: Props) {
       }
     }
 
+    if (cords.latitude === 0 && cords.longitude === 0) {
+      alert("Location is Required Please Hit Get Location");
+      return;
+    }
+
     await createThread({
+      position: { coords: cords },
       photo: values.trash_photo,
       text: values.thread,
       author: userId,
@@ -77,6 +98,40 @@ function PostThread({ userId }: Props) {
 
     router.push("/");
   };
+
+  // const onSubmitf = async (values: z.infer<typeof ThreadValidation>) => {
+  //   console.log("yo yo yo yo yo");
+  //   alert("L");
+  //   // console.log("yo yo yo yo yo");
+  //   // // const position = await myLocation();
+  //   // const position = {
+  //   //   coords: {
+  //   //     latitude: 123,
+  //   //     longitude: 123,
+  //   //   },
+  //   // };
+  //   // const blob = values.trash_photo;
+
+  //   // const hasImageChanged = isBase64Image(blob);
+  //   // if (hasImageChanged) {
+  //   //   const imgRes = await startUpload(files);
+
+  //   //   if (imgRes && imgRes[0].fileUrl) {
+  //   //     values.trash_photo = imgRes[0].fileUrl;
+  //   //   }
+  //   // }
+
+  //   await createThread({
+  //     position: { coords: cords },
+  //     photo: values.trash_photo,
+  //     text: values.thread,
+  //     author: userId,
+  //     communityId: organization ? organization.id : null,
+  //     path: pathname,
+  //   });
+
+  //   // router.push("/");
+  // };
 
   const handleImage = (
     e: ChangeEvent<HTMLInputElement>,
@@ -132,7 +187,7 @@ function PostThread({ userId }: Props) {
                   />
                 )}
               </FormLabel>
-              <FormControl className="flex-1 text-base-semibold text-gray-200">
+              <FormControl className="text-base-semibold flex-1 text-gray-200">
                 <Input
                   type="file"
                   accept="image/*"
@@ -152,13 +207,15 @@ function PostThread({ userId }: Props) {
               <FormLabel className="text-base-semibold text-light-2">
                 Content
               </FormLabel>
-              <FormControl className="no-focus border border-dark-4 bg-dark-3 text-light-1">
+              <FormControl className="no-focus border-dark-4 bg-dark-3 text-light-1 border">
                 <Textarea rows={15} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        <Getlocation setCoords={setCords} />
 
         <Button type="submit" className="bg-primary-500">
           Post Thread

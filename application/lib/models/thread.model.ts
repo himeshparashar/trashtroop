@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const threadSchema = new mongoose.Schema({
+  position: {
+    type: JSON,
+    require: true,
+  },
   photo: {
     type: String, // Assuming the photo is stored as a URL or file path
     required: true, // Adjust as necessary based on your requirements
